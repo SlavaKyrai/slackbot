@@ -9,6 +9,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from slackclient import SlackClient
 
+from botapp.models import WorkSpace
+
 SLACK_VERIFICATION_TOKEN = getattr(settings, 'SLACK_VERIFICATION_TOKEN', None)
 Client = SlackClient("xoxb-278092113248-NNxvSizjQbxYpt15j95Mpj3Y")  # TODO replace with token after oauth
 
@@ -26,10 +28,10 @@ def slack_oauth_view(request):
     }
     url = 'https://slack.com/api/oauth.access'
     data = json.loads(requests.get(url, params).text)
-    bot_access_token = data["bot"]["bot_access_token"]
-    bot_user_id = data["bot"]["bot_user_id"]
-    print(bot_access_token)
-    print(bot_user_id)
+    WorkSpace.objects.get_or_create(team_id=data['team_id'],
+                                    team_name=data['team_name'],
+                                    bot_user_id=data['bot']['bot_user_id'],
+                                    bot_access_token=data['bot']['bot_access_token'])
     print(data)
     return HttpResponse('Success')
 
@@ -50,10 +52,8 @@ class Events(APIView):
 
         ## handle command
         if 'command' in slack_message:
-            print(slack_message.get('command') + " " + slack_message.get('text'))
             bot_text = "<@{}> нужно  отлучиться '{}'".format(slack_message['user_name'], slack_message.get('text'))
-            call = Client.api_call(method='chat.postMessage',
-                                   channel="general",  # TODO remove hardcoded chanel
-                                   text=bot_text)
-            print("AAAAAAAAAAAA" + str(call))
+            Client.api_call(method='chat.postMessage',
+                            channel="general",  # TODO remove hardcoded chanel
+                            text=bot_text)
         return Response(status=status.HTTP_200_OK)
