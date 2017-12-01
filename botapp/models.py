@@ -22,3 +22,13 @@ class LeaveMessageAsk(models.Model):
 
     def __str__(self):
         return self.user_name + ": " + self.message_text[:20]
+
+
+class LeaveMessageResponse(models.Model):
+    user_id = models.CharField(max_length=100)
+    ts = models.CharField(max_length=50)  # TODO проверить а надо ли оно тут, если вложенность всегда 1
+    message_text = models.TextField()
+    leave_messake_ask = models.ForeignKey(LeaveMessageAsk, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.user_id + ": " + self.message_text[:20]

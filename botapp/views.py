@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from slackclient import SlackClient
 
-from botapp.models import WorkSpace, LeaveMessageAsk
+from botapp.models import WorkSpace, LeaveMessageAsk, LeaveMessageResponse
 
 SLACK_VERIFICATION_TOKEN = getattr(settings, 'SLACK_VERIFICATION_TOKEN', None)
 Client = SlackClient("xoxb-278092113248-OdY1DLMr1PIXpFco7P6sl1a2")  # TODO replace with token after oauth
@@ -89,7 +89,15 @@ class Events(APIView):
                         users=leave_message_ask.user_id
                     )
 
-                    print(event_message)
+                    print("THREAD_TS:", event_message)
+                    print("CONVERST OPEN:", converst_open_resp)
+
+                    LeaveMessageResponse.objects.create(
+                        user_id=event_message.get('user'),
+                        ts=event_message.get('ts'),
+                        message_text=event_message.get('text'),
+                        leave_messake_ask=leave_message_ask
+                    )
 
                     answer = '<@{}>  ответил на ваш запрос: "<{}>" - {}'.format(
                         event_message.get('user'),
