@@ -10,3 +10,15 @@ class WorkSpace(models.Model):
 
     def __str__(self):
         return self.team_name
+
+
+class LeaveMessageAsk(models.Model):
+    user_name = models.CharField(max_length=100)
+    user_id = models.CharField(max_length=20)
+    ts = models.CharField(max_length=50)
+    channel_id = models.CharField(max_length=40)
+    message_text = models.TextField()
+    workspace = models.ForeignKey(WorkSpace, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.user_name + ": " + self.message_text[:20]

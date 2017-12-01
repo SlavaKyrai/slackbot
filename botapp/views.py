@@ -9,10 +9,10 @@ from rest_framework.response import Response
 from rest_framework import status
 from slackclient import SlackClient
 
-from botapp.models import WorkSpace
+from botapp.models import WorkSpace, LeaveMessageAsk
 
 SLACK_VERIFICATION_TOKEN = getattr(settings, 'SLACK_VERIFICATION_TOKEN', None)
-Client = SlackClient("xoxb-278092113248-NNxvSizjQbxYpt15j95Mpj3Y")  # TODO replace with token after oauth
+Client = SlackClient("xoxb-278092113248-OdY1DLMr1PIXpFco7P6sl1a2")  # TODO replace with token after oauth
 
 
 class SlackMainView(TemplateView):
@@ -40,7 +40,12 @@ class Events(APIView):
     def post(self, request, *args, **kwargs):
 
         slack_message = request.data
-        print(request.data)
+        print("REQUEST DATA", request.data)
+
+        workspace = WorkSpace.objects.get(
+            team_id=slack_message.get('team_id'))  # be carefull with 1 workspace - 2 or more
+        # bot id
+        print(workspace)
 
         if slack_message.get('token') != SLACK_VERIFICATION_TOKEN:
             return Response(status=status.HTTP_403_FORBIDDEN)
@@ -53,7 +58,17 @@ class Events(APIView):
         ## handle command
         if 'command' in slack_message:
             bot_text = "<@{}> нужно  отлучиться '{}'".format(slack_message['user_name'], slack_message.get('text'))
-            Client.api_call(method='chat.postMessage',
-                            channel="general",  # TODO remove hardcoded chanel
-                            text=bot_text)
+            bot_message_response = Client.api_call(method='chat.postMessage',
+                                                   channel="general",  # TODO remove hardcoded chanel
+                                                   text=bot_text)
+
+            LeaveMessageAsk.objects.create(
+                user_name=slack_message.get('user_name'),
+                user_id=slack_message.get('user_id'),
+                ts=bot_message_response['ts'],
+                channel_id=bot_message_response['channel'],
+                message_text=slack_message.get('text'),
+                workspace=workspace
+            )
+            print("BMR: ", bot_message_response)
         return Response(status=status.HTTP_200_OK)
