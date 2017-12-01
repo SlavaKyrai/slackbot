@@ -13,13 +13,8 @@ class BotController:
             leave_message_ask = LeaveMessageAsk.objects.get(ts=event_message.get('thread_ts'))
             print("EVENT MESSAGE, NOT BOT", event_message)
 
-            converst_open_resp = self.slack_client.api_call(
-                'conversations.open',
-                users=leave_message_ask.user_id
-            )
-
-            print("THREAD_TS:", event_message)
-            print("CONVERST OPEN:", converst_open_resp)
+            converst_open_resp = self.slack_client.api_call('conversations.open',
+                                                            users=leave_message_ask.user_id)
 
             LeaveMessageResponse.objects.create(user_id=event_message.get('user'),
                                                 ts=event_message.get('ts'),
@@ -35,6 +30,10 @@ class BotController:
 
     def handle_command(self, slack_message):
         print(slack_message)
+        all_channels = self.slack_client.api_call(
+            'channels.list'
+        )
+        print("Channels", all_channels)
         workspace = WorkSpace.objects.get(team_id=slack_message.get('team_id'))
         bot_text = "<@{}> нужно  отлучиться '{}'".format(slack_message['user_name'], slack_message.get('text'))
         bot_message_response = self.slack_client.api_call(method='chat.postMessage',
@@ -47,4 +46,3 @@ class BotController:
                                        channel_id=bot_message_response['channel'],
                                        message_text=slack_message.get('text'),
                                        workspace=workspace)
-        print("BMR: ", bot_message_response)

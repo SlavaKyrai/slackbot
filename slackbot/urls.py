@@ -19,6 +19,8 @@ from django.contrib import admin
 from botapp.views import slack_oauth_view, Events, SlackMainView
 
 urlpatterns = [
-    url(r'^', include('botapp.urls')),
     url(r'^admin/', admin.site.urls),
+    url(r'^bot/', include('botapp.urls')),
+    url(r'^', SlackMainView.as_view(), name='home'),
+
 ]

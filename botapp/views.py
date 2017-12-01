@@ -1,6 +1,7 @@
 import json
 
 from django.http import HttpResponse
+from django.views.generic import View
 from django.views.generic import TemplateView
 from django.conf import settings
 import requests
@@ -9,6 +10,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from botapp.bot_controller import BotController
 from botapp.models import WorkSpace
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login, logout
+from .forms import UserForm
 
 SLACK_VERIFICATION_TOKEN = getattr(settings, 'SLACK_VERIFICATION_TOKEN', None)
 bot_controller = BotController()
@@ -62,13 +66,55 @@ class Events(APIView):
 
         if 'team_id' in slack_message:
 
-            if 'event' in slack_message:  # 4
+            if 'event' in slack_message:
                 event_message = slack_message.get('event')
 
                 # ignore bot's own message
-                if event_message.get('subtype') == 'bot_message':  # 5
+                if event_message.get('subtype') == 'bot_message':
                     return Response(status=status.HTTP_200_OK)
 
                 bot_controller.handle_leave_message_answer(event_message)
 
         return Response(status=status.HTTP_200_OK)
+
+
+def register(request):
+    form = UserForm(request.POST or None)
+    if form.is_valid():
+        user = form.save(commit=False)
+        username = form.cleaned_data['username']
+        password = form.cleaned_data['password']
+        user.set_password(password)
+        user.save()
+        user = authenticate(username=username, password=password)
+        if user is not None:
+            if user.is_active:
+                login(request, user)
+                return render(request, 'botapp/index.html')
+    context = {"form": form, }
+    return render(request, 'botapp/register.html', context)
+
+
+def login_user(request):
+    if request.method == "POST":
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(username=username, password=password)
+        if user is not None:
+            if user.is_active:
+                login(request, user)
+                return render(request, 'botapp/index.html')
+            else:
+                return render(request, 'botapp/index.html', {'error_message': 'Your account has been disabled'})
+        else:
+            return render(request, 'botapp/login.html', {'error_message': 'Invalid login'})
+    return render(request, 'botapp/login.html')
+
+
+def logout_user(request):
+    logout(request)
+    form = UserForm(request.POST or None)
+    context = {
+        "form": form,
+    }
+    return render(request, 'botapp/login.html', context)
