@@ -1,17 +1,17 @@
 import json
 
-from django.http import HttpResponse
-from django.views.generic import View
-from django.views.generic import TemplateView
-from django.conf import settings
 import requests
-from rest_framework.views import APIView
-from rest_framework.response import Response
+from django.conf import settings
+from django.contrib.auth import authenticate, login, logout
+from django.http import HttpResponse
+from django.shortcuts import render
+from django.views.generic import TemplateView
 from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
 from botapp.bot_controller import BotController
 from botapp.models import WorkSpace
-from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login, logout
 from .forms import UserForm
 
 SLACK_VERIFICATION_TOKEN = getattr(settings, 'SLACK_VERIFICATION_TOKEN', None)
@@ -24,17 +24,20 @@ class SlackMainView(TemplateView):
 
 def slack_oauth_view(request):
     code = request.GET['code']
+    print(code)
     params = {
         'code': code,
         'client_id': settings.SLACK_CLIENT_ID,
         'client_secret': settings.SLACK_CLIENT_SECRET
     }
+    # print(request.user)
     url = 'https://slack.com/api/oauth.access'
     data = json.loads(requests.get(url, params).text)
     WorkSpace.objects.get_or_create(team_id=data['team_id'],
                                     team_name=data['team_name'],
                                     bot_user_id=data['bot']['bot_user_id'],
-                                    bot_access_token=data['bot']['bot_access_token'])
+                                    bot_access_token=data['bot']['bot_access_token'],
+                                    user_admin=request.user)
     print(data)
     return HttpResponse('Success')
 

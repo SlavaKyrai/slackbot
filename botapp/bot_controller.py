@@ -11,8 +11,6 @@ class BotController:
     def handle_leave_message_answer(self, event_message):
         if LeaveMessageAsk.objects.filter(ts=event_message.get('thread_ts')).exists():  # check object exist
             leave_message_ask = LeaveMessageAsk.objects.get(ts=event_message.get('thread_ts'))
-            print("EVENT MESSAGE, NOT BOT", event_message)
-
             converst_open_resp = self.slack_client.api_call('conversations.open',
                                                             users=leave_message_ask.user_id)
 

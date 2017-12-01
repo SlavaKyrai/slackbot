@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 
 # Create your models here.
@@ -7,6 +8,7 @@ class WorkSpace(models.Model):
     team_name = models.CharField(max_length=150)
     bot_user_id = models.CharField(max_length=15)
     bot_access_token = models.CharField(max_length=150)
+    user_admin = models.ForeignKey(User)
 
     def __str__(self):
         return self.team_name
