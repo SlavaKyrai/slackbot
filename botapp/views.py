@@ -56,7 +56,7 @@ class Events(APIView):
                             status=status.HTTP_200_OK)
 
         ## handle command
-        if 'command' in slack_message:
+        if 'command' in slack_message and slack_message['command'] == '/ask_leave_bot':
             bot_text = "<@{}> нужно  отлучиться '{}'".format(slack_message['user_name'], slack_message.get('text'))
             bot_message_response = Client.api_call(method='chat.postMessage',
                                                    channel="general",  # TODO remove hardcoded chanel
@@ -71,4 +71,35 @@ class Events(APIView):
                 workspace=workspace
             )
             print("BMR: ", bot_message_response)
+
+        if 'event' in slack_message:  # 4
+            event_message = slack_message.get('event')
+
+            # ignore bot's own message
+            if event_message.get('subtype') == 'bot_message':  # 5
+                return Response(status=status.HTTP_200_OK)
+
+            if 'thread_ts' in event_message:
+                if LeaveMessageAsk.objects.filter(ts=event_message.get('thread_ts')).exists():  # check object exist
+                    leave_message_ask = LeaveMessageAsk.objects.get(ts=event_message.get('thread_ts'))
+                    print("EVENT MESSAGE, NOT BOT", event_message)
+
+                    converst_open_resp = Client.api_call(
+                        'conversations.open',
+                        users=leave_message_ask.user_id
+                    )
+
+                    print(event_message)
+
+                    answer = '<@{}>  ответил на ваш запрос: "<{}>" - {}'.format(
+                        event_message.get('user'),
+                        leave_message_ask.message_text,
+                        event_message.get('text')
+                    )
+                    Client.api_call(
+                        'chat.postMessage',
+                        channel=converst_open_resp['channel']['id'],
+                        text=answer
+                    )
+
         return Response(status=status.HTTP_200_OK)
