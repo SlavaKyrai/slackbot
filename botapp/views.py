@@ -3,11 +3,10 @@ import json
 import requests
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
-from django import forms
+from django.db import IntegrityError
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
-from django.template.loader import get_template
-from django.views.generic import TemplateView, ListView, DetailView, FormView, UpdateView
+from django.views.generic import TemplateView, ListView, DetailView, UpdateView
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -34,13 +33,15 @@ def slack_oauth_view(request):
     }
     url = 'https://slack.com/api/oauth.access'
     data = json.loads(requests.get(url, params).text)
-    WorkSpace.objects.get_or_create(team_id=data['team_id'],
-                                    team_name=data['team_name'],
-                                    bot_user_id=data['bot']['bot_user_id'],
-                                    bot_access_token=data['bot']['bot_access_token'],
-                                    user_admin=request.user)
-    print(data)
-    return HttpResponse('Success')
+    try:
+        WorkSpace.objects.get_or_create(team_id=data['team_id'],
+                                        team_name=data['team_name'],
+                                        bot_user_id=data['bot']['bot_user_id'],
+                                        bot_access_token=data['bot']['bot_access_token'],
+                                        user_admin=request.user)
+    except IntegrityError:
+        return HttpResponse("This workspace already have admin")
+    return redirect('workspaces')
 
 
 class SlashCommands(APIView):
@@ -77,7 +78,7 @@ class Events(APIView):
                 if event_message.get('subtype') == 'bot_message':
                     return Response(status=status.HTTP_200_OK)
 
-                bot_controller.handle_leave_message_answer(event_message)
+                bot_controller.handle_leave_message_answer(event_message, slack_message['team_id'])
 
         return Response(status=status.HTTP_200_OK)
 
@@ -100,7 +101,9 @@ class WorkspaceDetail(DetailView):
         so you can use {{ car }} etc. within the template
         """
         context = super(WorkspaceDetail, self).get_context_data(**kwargs)
-        context["channels"] = bot_controller.get_available_channels_names()
+        workspace = WorkSpace.objects.get(pk=self.kwargs['pk'])
+
+        context["channels"] = bot_controller.get_available_channels_names(workspace.bot_access_token)
         return context
 
 
@@ -112,7 +115,8 @@ class ChannelConfig(UpdateView):
 
     def get_form_kwargs(self):  # put channels to form
         kwargs = super(ChannelConfig, self).get_form_kwargs()
-        channels = bot_controller.get_available_channels()
+        workspace = WorkSpace.objects.get(pk=self.kwargs['pk'])
+        channels = bot_controller.get_available_channels(workspace.bot_access_token)
         kwargs['channels'] = channels
         return kwargs
 
