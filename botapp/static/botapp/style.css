@@ -11,6 +11,10 @@
     margin-top: 20px;
 }
 
+#id_moderators {
+    width: 300px;
+}
+
 body {
     background: white url("images/background.png");
 }

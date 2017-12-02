@@ -12,7 +12,7 @@ from rest_framework.views import APIView
 
 from botapp.bot_controller import BotController
 from botapp.models import WorkSpace
-from .forms import UserForm, ChannelConfigForm
+from .forms import UserForm, ChannelConfigForm, AddModeratorForm
 
 SLACK_VERIFICATION_TOKEN = getattr(settings, 'SLACK_VERIFICATION_TOKEN', None)
 bot_controller = BotController()
@@ -38,7 +38,7 @@ def slack_oauth_view(request):
         return render(request,
                       'botapp/workspaces_list.html',
                       {'error_message': 'Ошибка :(, кажется, кто то уже зарегестрировался как админ, этого сообщества'})
-    return redirect('workspaces')
+    return redirect('home')
 
 
 class SlashCommands(APIView):
@@ -87,7 +87,6 @@ class WorkspacesList(ListView):
     def get(self, request, *args, **kwargs):
         if not self.request.user.is_authenticated():
             return render(request, 'botapp/login.html')
-
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
@@ -99,13 +98,8 @@ class WorkspaceDetail(DetailView):
     model = WorkSpace
 
     def get_context_data(self, **kwargs):
-        """
-        This has been overridden to add `car` to the templates context,
-        so you can use {{ car }} etc. within the template
-        """
         context = super(WorkspaceDetail, self).get_context_data(**kwargs)
         workspace = WorkSpace.objects.get(pk=self.kwargs['pk'])
-
         context["channels"] = bot_controller.get_available_channels_names(workspace.bot_access_token)
         return context
 
@@ -122,6 +116,13 @@ class ChannelConfig(UpdateView):
         channels = bot_controller.get_available_channels(workspace.bot_access_token)
         kwargs['channels'] = channels
         return kwargs
+
+
+class ModerAdd(UpdateView):
+    template_name = 'botapp/moder_add.html'
+    form_class = AddModeratorForm
+    success_url = '/'
+    model = WorkSpace
 
 
 def register(request):
@@ -149,7 +150,7 @@ def login_user(request):
         if user is not None:
             if user.is_active:
                 login(request, user)
-                return redirect('workspaces')
+                return redirect('home')
             else:
                 return render(request, 'botapp/workspaces_list.html',
                               {'error_message': 'Your account has been disabled'})

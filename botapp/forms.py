@@ -23,3 +23,9 @@ class ChannelConfigForm(forms.ModelForm):
     class Meta:
         model = WorkSpace
         fields = ['announcing_channel_name']
+
+
+class AddModeratorForm(forms.ModelForm):
+    class Meta:
+        model = WorkSpace
+        fields = ['moderators']
