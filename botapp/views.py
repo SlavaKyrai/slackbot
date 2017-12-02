@@ -4,9 +4,8 @@ import requests
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
-from django.http import HttpResponse
 from django.shortcuts import render, redirect
-from django.views.generic import TemplateView, ListView, DetailView, UpdateView
+from django.views.generic import ListView, DetailView, UpdateView
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -17,10 +16,6 @@ from .forms import UserForm, ChannelConfigForm
 
 SLACK_VERIFICATION_TOKEN = getattr(settings, 'SLACK_VERIFICATION_TOKEN', None)
 bot_controller = BotController()
-
-
-class SlackMainView(TemplateView):
-    template_name = 'botapp/index.html'
 
 
 def slack_oauth_view(request):
@@ -40,7 +35,9 @@ def slack_oauth_view(request):
                                         bot_access_token=data['bot']['bot_access_token'],
                                         user_admin=request.user)
     except IntegrityError:
-        return HttpResponse("This workspace already have admin")
+        return render(request,
+                      'botapp/workspaces_list.html',
+                      {'error_message': 'Ошибка :(, кажется, кто то уже зарегестрировался как админ, этого сообщества'})
     return redirect('workspaces')
 
 
@@ -86,6 +83,12 @@ class Events(APIView):
 class WorkspacesList(ListView):
     template_name = 'botapp/workspaces_list.html'
     context_object_name = 'workspaces'
+
+    def get(self, request, *args, **kwargs):
+        if not self.request.user.is_authenticated():
+            return render(request, 'botapp/login.html')
+
+        return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
         return WorkSpace.objects.filter(user_admin=self.request.user)
@@ -133,7 +136,7 @@ def register(request):
         if user is not None:
             if user.is_active:
                 login(request, user)
-                return render(request, 'botapp/index.html')
+                return render(request, 'botapp/workspaces_list.html')
     context = {"form": form, }
     return render(request, 'botapp/register.html', context)
 
@@ -148,7 +151,8 @@ def login_user(request):
                 login(request, user)
                 return redirect('workspaces')
             else:
-                return render(request, 'botapp/index.html', {'error_message': 'Your account has been disabled'})
+                return render(request, 'botapp/workspaces_list.html',
+                              {'error_message': 'Your account has been disabled'})
         else:
             return render(request, 'botapp/login.html', {'error_message': 'Invalid login'})
     return render(request, 'botapp/login.html')

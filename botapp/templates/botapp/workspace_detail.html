@@ -1,7 +1,7 @@
 {% extends 'botapp/base.html' %}
 {% block body %}
-    <p>{{ workspace.team_name }}</p>
-    <p>Available channels</p>
+    <p>Название команды: {{ workspace.team_name }}</p>
+    <p>Каналы в команде:</p>
     <ul>
         {% for  channel in channels %}
             <li>{{ channel }}</li>

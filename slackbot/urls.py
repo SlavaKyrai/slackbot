@@ -16,11 +16,11 @@ Including another URLconf
 from django.conf.urls import url, include
 from django.contrib import admin
 
-from botapp.views import slack_oauth_view, Events, SlackMainView
+from botapp.views import slack_oauth_view, Events,  WorkspacesList
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^bot/', include('botapp.urls')),
-    url(r'^', SlackMainView.as_view(), name='home'),
+    url(r'^', WorkspacesList.as_view(), name='home'),
 
 ]
