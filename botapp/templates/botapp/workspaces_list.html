@@ -5,7 +5,7 @@
     {% endif %}
     {% if workspaces %}
         <div align="center">
-            <h3>Мои команды:</h3>
+            <h3>Мои каналы:</h3>
             <ul class="commands-list">
                 {% for  workspace in workspaces %}
                     <li><a href="{% url 'workspace_detail'  workspace.id %}">{{ workspace.team_name }}</a></li>
@@ -19,7 +19,7 @@
         </div>
     {% else %}
         <div class="empty-workspace" align="center">
-            <p>Похоже, вы ещё не авторизировали приложения ни в одной команаде</p>
+            <p>Похоже, вы ещё не авторизировали приложения ни в одном канале</p>
             <a href="https://slack.com/oauth/authorize?client_id=279452991798.278091243440&scope=bot,channels:history,commands">
                 Нажмите здесь</a> чтобы добавить команду.
         </div>

@@ -1,0 +1,20 @@
+{% extends 'botapp/base.html' %}
+{% block body %}
+    {% if error_message %}
+        <p align="center"><strong>{{ error_message }}</strong></p>
+    {% endif %}
+    {% if workspaces %}
+        <div align="center">
+            <h3>Модерирумые каналы:</h3>
+            <ul class="commands-list">
+                {% for  workspace in workspaces %}
+                    <li><a href="{% url 'workspace_detail'  workspace.id %}">{{ workspace.team_name }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% else %}
+        <div class="empty-workspace" align="center">
+            <p>Похоже, что вы не являетесь модератором ни одного канала</p>
+        </div>
+    {% endif %}
+{% endblock %}

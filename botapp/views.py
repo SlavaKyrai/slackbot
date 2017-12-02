@@ -42,6 +42,8 @@ def slack_oauth_view(request):
 
 
 class SlashCommands(APIView):
+    """Webhook для получения /команд из Slack"""
+
     def post(self, request, *args, **kwargs):
         slack_message = request.data
 
@@ -54,6 +56,8 @@ class SlashCommands(APIView):
 
 
 class Events(APIView):
+    """Webhook для событий из Slack"""
+
     def post(self, request, *args, **kwargs):
 
         slack_message = request.data
@@ -78,6 +82,14 @@ class Events(APIView):
                 bot_controller.handle_leave_message_answer(event_message, slack_message['team_id'])
 
         return Response(status=status.HTTP_200_OK)
+
+
+class ModeratingWorkspacesList(ListView):
+    template_name = 'botapp/workspace_moderating.html'
+    context_object_name = 'workspaces'
+
+    def get_queryset(self):
+        return WorkSpace.objects.filter(moderators=self.request.user)
 
 
 class WorkspacesList(ListView):

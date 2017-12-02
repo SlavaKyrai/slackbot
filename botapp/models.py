@@ -30,6 +30,7 @@ class LeaveMessageAsk(models.Model):
 
 class LeaveMessageResponse(models.Model):
     user_id = models.CharField(max_length=100)
+    ts = models.CharField(max_length=50)
     message_text = models.TextField()
     leave_messake_ask = models.ForeignKey(LeaveMessageAsk, on_delete=models.CASCADE)
 
