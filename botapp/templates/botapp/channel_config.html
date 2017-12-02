@@ -1,0 +1,7 @@
+{% extends 'botapp/base.html' %}
+{% block body %}
+    <form action="{% url 'channel_cfg' workspace.id %}" method='post' enctype="multipart/form-data">{% csrf_token %}
+        {{ form.as_p }}
+        <input type="submit" value="submit"/>
+    </form>
+{% endblock %}

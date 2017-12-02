@@ -9,6 +9,8 @@ class WorkSpace(models.Model):
     bot_user_id = models.CharField(max_length=15)
     bot_access_token = models.CharField(max_length=150)
     user_admin = models.ForeignKey(User)
+    announcing_channel_name = models.CharField(max_length=100, null=True)  # канал, в который будут слаться сообщения
+    announcing_channel_id = models.CharField(max_length=10, null=True)
 
     def __str__(self):
         return self.team_name

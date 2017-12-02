@@ -3,16 +3,18 @@ import json
 import requests
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
+from django import forms
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
-from django.views.generic import TemplateView, ListView, DetailView
+from django.template.loader import get_template
+from django.views.generic import TemplateView, ListView, DetailView, FormView, UpdateView
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from botapp.bot_controller import BotController
 from botapp.models import WorkSpace
-from .forms import UserForm
+from .forms import UserForm, ChannelConfigForm
 
 SLACK_VERIFICATION_TOKEN = getattr(settings, 'SLACK_VERIFICATION_TOKEN', None)
 bot_controller = BotController()
@@ -98,8 +100,21 @@ class WorkspaceDetail(DetailView):
         so you can use {{ car }} etc. within the template
         """
         context = super(WorkspaceDetail, self).get_context_data(**kwargs)
-        context["channels"] = bot_controller.get_available_channels()
+        context["channels"] = bot_controller.get_available_channels_names()
         return context
+
+
+class ChannelConfig(UpdateView):
+    form_class = ChannelConfigForm
+    model = WorkSpace
+    template_name = 'botapp/channel_config.html'
+    success_url = '/'
+
+    def get_form_kwargs(self):  # put channels to form
+        kwargs = super(ChannelConfig, self).get_form_kwargs()
+        channels = bot_controller.get_available_channels()
+        kwargs['channels'] = channels
+        return kwargs
 
 
 def register(request):

@@ -32,9 +32,12 @@ class BotController:
         print(slack_message)
 
         workspace = WorkSpace.objects.get(team_id=slack_message.get('team_id'))
+        anounce_channel = workspace.announcing_channel_name
+        if anounce_channel is None:
+            anounce_channel = 'general'
         bot_text = "<@{}> нужно  отлучиться '{}'".format(slack_message['user_name'], slack_message.get('text'))
         bot_message_response = self.slack_client.api_call(method='chat.postMessage',
-                                                          channel="general",  # TODO remove hardcoded chanel
+                                                          channel=anounce_channel,  # TODO remove hardcoded chanel
                                                           text=bot_text)
 
         LeaveMessageAsk.objects.create(user_name=slack_message.get('user_name'),
@@ -44,9 +47,16 @@ class BotController:
                                        message_text=slack_message.get('text'),
                                        workspace=workspace)
 
-    def get_available_channels(self):
+    def get_available_channels_names(self):
         all_channels = self.slack_client.api_call(
             'channels.list'
         )
         all_channels = [channel["name_normalized"] for channel in all_channels['channels']]
+        return all_channels
+
+    def get_available_channels(self):
+        all_channels = self.slack_client.api_call(
+            'channels.list'
+        )
+        all_channels = [(channel["id"], channel["name_normalized"]) for channel in all_channels['channels']]
         return all_channels
