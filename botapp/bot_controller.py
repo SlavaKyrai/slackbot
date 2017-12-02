@@ -1,3 +1,5 @@
+import json
+
 from slackclient import SlackClient
 
 from botapp.models import WorkSpace, LeaveMessageAsk, LeaveMessageResponse
@@ -28,10 +30,7 @@ class BotController:
 
     def handle_command(self, slack_message):
         print(slack_message)
-        all_channels = self.slack_client.api_call(
-            'channels.list'
-        )
-        print("Channels", all_channels)
+
         workspace = WorkSpace.objects.get(team_id=slack_message.get('team_id'))
         bot_text = "<@{}> нужно  отлучиться '{}'".format(slack_message['user_name'], slack_message.get('text'))
         bot_message_response = self.slack_client.api_call(method='chat.postMessage',
@@ -44,3 +43,10 @@ class BotController:
                                        channel_id=bot_message_response['channel'],
                                        message_text=slack_message.get('text'),
                                        workspace=workspace)
+
+    def get_available_channels(self):
+        all_channels = self.slack_client.api_call(
+            'channels.list'
+        )
+        all_channels = [channel["name_normalized"] for channel in all_channels['channels']]
+        return all_channels

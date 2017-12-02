@@ -1,0 +1,11 @@
+{% extends 'botapp/base.html' %}
+{% block body %}
+    <p>{{ workspace.team_name }}</p>
+    <p>Available channels</p>
+    <ul>
+        {% for  channel in channels %}
+            <li>{{ channel }}</li>
+        {% endfor %}
+    </ul>
+
+{% endblock %}

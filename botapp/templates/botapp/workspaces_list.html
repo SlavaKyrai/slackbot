@@ -1,0 +1,14 @@
+{% extends 'botapp/base.html' %}
+{% block body %}
+    <p>Your workspaces</p>
+    <ul>
+        {% for  workspace in workspaces %}
+            <li><a href="{% url 'workspace_detail'  workspace.id %}">{{ workspace.team_name }}</a></li>
+        {% endfor %}
+    </ul>
+    <div class="panel-footer">
+        Don't have a workspace? <a
+            href="https://slack.com/oauth/authorize?client_id=279452991798.278091243440&scope=bot,channels:history,commands">
+        Click here</a> to add one.
+    </div>
+{% endblock %}

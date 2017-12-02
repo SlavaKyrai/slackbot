@@ -1,6 +1,7 @@
 from django.conf.urls import url
 
-from botapp.views import slack_oauth_view, Events, SlackMainView, SlashCommands, register, logout_user, login_user
+from botapp.views import slack_oauth_view, Events, SlackMainView, SlashCommands, register, logout_user, login_user, \
+    WorkspacesList, WorkspaceDetail
 
 urlpatterns = [
     url(r'^oauth/$', slack_oauth_view),
@@ -9,4 +10,6 @@ urlpatterns = [
     url(r'^register/$', register, name='register'),
     url(r'^login/$', login_user, name='login'),
     url(r'^logout/$', logout_user, name="logout"),
+    url(r'^workspaces/$', WorkspacesList.as_view(), name="workspaces"),
+    url(r'^workspaces/(?P<pk>\d+)/$', WorkspaceDetail.as_view(), name="workspace_detail"),
 ]

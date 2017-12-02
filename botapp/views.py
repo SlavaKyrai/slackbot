@@ -4,8 +4,8 @@ import requests
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponse
-from django.shortcuts import render
-from django.views.generic import TemplateView
+from django.shortcuts import render, redirect
+from django.views.generic import TemplateView, ListView, DetailView
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -30,7 +30,6 @@ def slack_oauth_view(request):
         'client_id': settings.SLACK_CLIENT_ID,
         'client_secret': settings.SLACK_CLIENT_SECRET
     }
-    # print(request.user)
     url = 'https://slack.com/api/oauth.access'
     data = json.loads(requests.get(url, params).text)
     WorkSpace.objects.get_or_create(team_id=data['team_id'],
@@ -81,6 +80,28 @@ class Events(APIView):
         return Response(status=status.HTTP_200_OK)
 
 
+class WorkspacesList(ListView):
+    template_name = 'botapp/workspaces_list.html'
+    context_object_name = 'workspaces'
+
+    def get_queryset(self):
+        return WorkSpace.objects.filter(user_admin=self.request.user)
+
+
+class WorkspaceDetail(DetailView):
+    template_name = 'botapp/workspace_detail.html'
+    model = WorkSpace
+
+    def get_context_data(self, **kwargs):
+        """
+        This has been overridden to add `car` to the templates context,
+        so you can use {{ car }} etc. within the template
+        """
+        context = super(WorkspaceDetail, self).get_context_data(**kwargs)
+        context["channels"] = bot_controller.get_available_channels()
+        return context
+
+
 def register(request):
     form = UserForm(request.POST or None)
     if form.is_valid():
@@ -106,7 +127,7 @@ def login_user(request):
         if user is not None:
             if user.is_active:
                 login(request, user)
-                return render(request, 'botapp/index.html')
+                return redirect('workspaces')
             else:
                 return render(request, 'botapp/index.html', {'error_message': 'Your account has been disabled'})
         else:
