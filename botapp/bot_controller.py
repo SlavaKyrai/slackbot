@@ -20,18 +20,15 @@ class BotController:
                                                 message_text=event_message.get('text'),
                                                 leave_messake_ask=leave_message_ask)
 
-            answer = '<@{}>  ответил на ваш запро   с: "<{}>" - {}'.format(event_message.get('user'),
-                                                                           leave_message_ask.message_text,
-                                                                           event_message.get('text'))
+            answer = '<@{}>  ответил на ваш запрос: "<{}>" - {}'.format(event_message.get('user'),
+                                                                        leave_message_ask.message_text,
+                                                                        event_message.get('text'))
 
             client.api_call('chat.postMessage',
                             channel=converst_open_resp['channel']['id'],
                             text=answer)
 
     def handle_command(self, slack_message):
-        print(slack_message)
-        a = slack_message.get('team_id')
-        print(slack_message.get('team_id'))
 
         workspace = WorkSpace.objects.get(team_id=slack_message.get('team_id'))
         anounce_channel = workspace.announcing_channel_name

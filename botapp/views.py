@@ -4,7 +4,8 @@ import requests
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
-from django.shortcuts import render, redirect
+from django.http import Http404, HttpResponse
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import ListView, DetailView, UpdateView
 from rest_framework import status
 from rest_framework.response import Response
@@ -118,9 +119,15 @@ class WorkspaceDetail(DetailView):
 
 class ChannelConfig(UpdateView):
     form_class = ChannelConfigForm
-    model = WorkSpace
     template_name = 'botapp/channel_config.html'
     success_url = '/'
+
+    def get(self, request, *args, **kwargs):
+        workspace = WorkSpace.objects.get(pk=self.kwargs['pk'])
+        if (workspace.user_admin != self.request.user):
+            return render(request, 'botapp/error.html',
+                          {'error_message': 'Менять настройки может только админ'})
+        return super().get(request, *args, **kwargs)
 
     def get_form_kwargs(self):  # put channels to form
         kwargs = super(ChannelConfig, self).get_form_kwargs()
@@ -134,7 +141,13 @@ class ModerAdd(UpdateView):
     template_name = 'botapp/moder_add.html'
     form_class = AddModeratorForm
     success_url = '/'
-    model = WorkSpace
+
+    def get(self, request, *args, **kwargs):
+        workspace = WorkSpace.objects.get(pk=self.kwargs['pk'])
+        if (workspace.user_admin != self.request.user):
+            return render(request, 'botapp/error.html',
+                          {'error_message': 'Менять настройки может только админ'})
+        return super().get(request, *args, **kwargs)
 
 
 def register(request):

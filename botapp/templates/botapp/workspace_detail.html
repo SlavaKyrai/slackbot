@@ -1,33 +1,51 @@
 {% extends 'botapp/base.html' %}
 {% block body %}
+    {% if error_message %}
+        <p><strong>{{ error_message }}</strong></p>
+    {% endif %}
+    {% if workspace.user_admin == user %}
+        <div align="center" class="bot-settings">
+            <p>Настройки бота: </p>
+            <a href="{% url 'channel_cfg' workspace.id %}" class="btn btn-danger" role="button">Назначить канал бота</a>
+            <a href="{% url 'add_moder' workspace.id %}" class="btn btn-danger" role="button">Добавить модератора</a>
+        </div>
+    {% endif %}
     <p>Название команды: {{ workspace.team_name }}</p>
+
+    <p>Администратор: {{ workspace.user_admin }}
+
+    <p>Модераторы:</p>
+    <ul>
+        {% for  moderator in workspace.moderators.all %}
+            <li>{{ moderator }}</li>
+        {% endfor %}
+    </ul>
+
     <p>Каналы в команде:</p>
     <ul>
         {% for  channel in channels %}
             <li>{{ channel }}</li>
         {% endfor %}
     </ul>
+
     <div>
-
-        <div class="row">
-
-            <table class="table table-striped table-bordered">
+        <table class="table table-striped table-bordered">
+            <tr>
+                <th>Автор</th>
+                <th>Сообщение</th>
+                <th>Ответ</th>
+            </tr>
+            {% for ask_message in workspace.leavemessageask_set.all %}
                 <tr>
-                    <th>Автор</th>
-                    <th>Сообщение</th>
-                    <th>Ответ</th>
+                    <td> {{ ask_message.user_name }}</td>
+                    <td> {{ ask_message.message_text }}</td>
+                    <td>
+                        {% for answer in ask_message.leavemessageresponse_set.all %}
+                            <p>{{ answer.message_text }};</p>
+                        {% endfor %}
+                    </td>
                 </tr>
-                {% for ask_message in workspace.leavemessageask_set.all %}
-                    <tr>
-                        <td> {{ ask_message.user_name }}</td>
-                        <td> {{ ask_message.message_text }}</td>
-                        <td>
-                            {% for answer in ask_message.leavemessageresponse_set.all %}
-                                <p>{{ answer.message_text }};</p>
-                            {% endfor %}
-                        </td>
-                    </tr>
-                {% endfor %}
-            </table>
-        </div>
+            {% endfor %}
+        </table>
+    </div>
 {% endblock %}

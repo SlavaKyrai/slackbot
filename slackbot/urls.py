@@ -16,7 +16,7 @@ Including another URLconf
 from django.conf.urls import url, include
 from django.contrib import admin
 
-from botapp.views import slack_oauth_view, Events,  WorkspacesList
+from botapp.views import slack_oauth_view, Events, WorkspacesList
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),

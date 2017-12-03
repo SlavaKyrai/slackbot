@@ -5,7 +5,7 @@
     {% endif %}
     {% if workspaces %}
         <div align="center">
-            <h3>Модерирумые каналы:</h3>
+            <h3>Модерирумые сообщества:</h3>
             <ul class="commands-list">
                 {% for  workspace in workspaces %}
                     <li><a href="{% url 'workspace_detail'  workspace.id %}">{{ workspace.team_name }}</a></li>
@@ -14,7 +14,7 @@
         </div>
     {% else %}
         <div class="empty-workspace" align="center">
-            <p>Похоже, что вы не являетесь модератором ни одного канала</p>
+            <p>Похоже, что вы не являетесь модератором ни одного сообщества</p>
         </div>
     {% endif %}
 {% endblock %}

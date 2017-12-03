@@ -10,7 +10,7 @@ class WorkSpace(models.Model):
     bot_access_token = models.CharField(max_length=150)
     user_admin = models.ForeignKey(User)
     moderators = models.ManyToManyField(User, blank=True, related_name='moders')
-    announcing_channel_name = models.CharField(max_length=100, null=True)  # канал, в который будут слаться сообщения
+    announcing_channel_name = models.CharField(max_length=100, null=True, default='general')  # канал, в который будут слаться сообщения
 
     def __str__(self):
         return self.team_name
