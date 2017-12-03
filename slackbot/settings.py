@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
+import dj_database_url
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -24,7 +25,7 @@ SECRET_KEY = '(bi^qm87fkmjo4$)-7anp#9syz4f91ni7qm4944w4hdu6r5!!g'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["c740b210.ngrok.io", "127.0.0.1"]  # ngrok
+ALLOWED_HOSTS = ["c740b210.ngrok.io", "127.0.0.1", "lightslackbot.herokuapp.com"]  # ngrok
 
 # Application definition
 
@@ -119,3 +120,6 @@ SLACK_CLIENT_ID = '279452991798.278091243440'
 SLACK_CLIENT_SECRET = 'acb457fb474388ab24d6a14e29e6bfd4'
 SLACK_VERIFICATION_TOKEN = 'LrsY57cPk5zEmajfo5th5INY'
 
+db_from_env = dj_database_url.config()
+DATABASES['default'].update(db_from_env)
+DATABASES['default']['CONN_MAX_AGE'] = 500
