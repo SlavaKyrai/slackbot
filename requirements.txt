@@ -10,6 +10,7 @@ idna==2.6
 itsdangerous==0.24
 Jinja2==2.10
 MarkupSafe==1.0
+gunicorn==19.6.0
 psycopg2==2.7.3.2
 pipreqs==0.4.9
 pyee==5.0.0
