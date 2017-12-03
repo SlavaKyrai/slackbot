@@ -6,7 +6,7 @@
     <h2 align="center">Вы зашли как: <strong>{{ user }}</strong></h2>
     {% if workspaces %}
         <div class="card-container">
-            <h3 align="center" style="margin-top: 30px">Ваши каналы:</h3>
+            <h3 align="center" style="margin-top: 30px">Ваши сообщества:</h3>
 
             <div class="card">
                 <ul class="list-group list-group-flush">
@@ -28,7 +28,7 @@
     {% else %}
         <div class="empty-workspace" align="center">
             <p>Похоже, вы ещё не авторизировали приложения ни в одном канале</p>
-             <a href="https://slack.com/oauth/authorize?client_id=279452991798.278091243440&scope=bot,channels:history,commands"
+            <a href="https://slack.com/oauth/authorize?client_id=279452991798.278091243440&scope=bot,channels:history,commands"
                class="btn btn-success" role="button">Добавить бота</a>
         </div>
     {% endif %}
