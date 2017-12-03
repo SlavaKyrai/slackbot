@@ -1,6 +1,27 @@
 .page_content {
     margin: 20px;
-    margin-top: 100px;
+    margin-top: 75px;
+}
+
+.card-container {
+    alignment: center;
+    width: 40%;
+    margin: auto;
+
+}
+
+.card {
+    border-radius: 10px;
+    border: 2px solid lightgrey;
+    padding: 10px;
+}
+
+.card ul li {
+    text-align: center;
+}
+
+.card ul li a {
+    alignment: center;
 }
 
 .commands-list {
@@ -10,14 +31,6 @@
 
 .panel-footer {
     margin-top: 20px;
-}
-
-#id_moderators {
-    width: 300px;
-}
-
-.bot-settings {
-    margin: 50px;
 }
 
 .bot-settings p {
@@ -30,5 +43,5 @@
 }
 
 body {
-    background: white url("images/background.png");
+    background: #DFE2DB;
 }

@@ -29,3 +29,7 @@ class AddModeratorForm(forms.ModelForm):
     class Meta:
         model = WorkSpace
         fields = ['moderators']
+
+    def __init__(self, *args, **kwargs):
+        super(AddModeratorForm, self).__init__(*args, **kwargs)  # Call to ModelForm constructor
+        self.fields['moderators'].widget.attrs['style'] = 'width:200px'

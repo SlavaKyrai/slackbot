@@ -4,8 +4,7 @@ import requests
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
-from django.http import Http404, HttpResponse
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 from django.views.generic import ListView, DetailView, UpdateView
 from rest_framework import status
 from rest_framework.response import Response
@@ -37,7 +36,7 @@ def slack_oauth_view(request):
                                         user_admin=request.user)
     except IntegrityError:
         return render(request,
-                      'botapp/workspaces_list.html',
+                      'botapp/error.html',
                       {'error_message': 'Ошибка :(, кажется, кто то уже зарегестрировался как админ, этого сообщества'})
     return redirect('home')
 
@@ -121,6 +120,7 @@ class ChannelConfig(UpdateView):
     form_class = ChannelConfigForm
     template_name = 'botapp/channel_config.html'
     success_url = '/'
+    model = WorkSpace
 
     def get(self, request, *args, **kwargs):
         workspace = WorkSpace.objects.get(pk=self.kwargs['pk'])
@@ -141,6 +141,7 @@ class ModerAdd(UpdateView):
     template_name = 'botapp/moder_add.html'
     form_class = AddModeratorForm
     success_url = '/'
+    model = WorkSpace
 
     def get(self, request, *args, **kwargs):
         workspace = WorkSpace.objects.get(pk=self.kwargs['pk'])

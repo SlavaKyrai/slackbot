@@ -3,25 +3,33 @@
     {% if error_message %}
         <p align="center"><strong>{{ error_message }}</strong></p>
     {% endif %}
+    <h2 align="center">Вы зашли как: <strong>{{ user }}</strong></h2>
     {% if workspaces %}
-        <div align="center">
-            <h3>Мои каналы:</h3>
-            <ul class="commands-list">
-                {% for  workspace in workspaces %}
-                    <li><a href="{% url 'workspace_detail'  workspace.id %}">{{ workspace.team_name }}</a></li>
-                {% endfor %}
-            </ul>
+        <div class="card-container">
+            <h3 align="center" style="margin-top: 30px">Ваши каналы:</h3>
+
+            <div class="card">
+                <ul class="list-group list-group-flush">
+                    {% for  workspace in workspaces %}
+                        <li class="list-group-item" style="text-align: center">
+                            <a href="{% url 'workspace_detail'  workspace.id %}">
+                                {{ workspace.team_name }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
         </div>
+
         <div class="panel-footer" align="center">
-            Нажмите <a
-                href="https://slack.com/oauth/authorize?client_id=279452991798.278091243440&scope=bot,channels:history,commands">
-            сюда</a> чтобы добавить бота в ещё 1 команду.
+            <a href="https://slack.com/oauth/authorize?client_id=279452991798.278091243440&scope=bot,channels:history,commands"
+               class="btn btn-success" role="button">Добавить бота</a>
         </div>
     {% else %}
         <div class="empty-workspace" align="center">
             <p>Похоже, вы ещё не авторизировали приложения ни в одном канале</p>
-            <a href="https://slack.com/oauth/authorize?client_id=279452991798.278091243440&scope=bot,channels:history,commands">
-                Нажмите здесь</a> чтобы добавить команду.
+             <a href="https://slack.com/oauth/authorize?client_id=279452991798.278091243440&scope=bot,channels:history,commands"
+               class="btn btn-success" role="button">Добавить бота</a>
         </div>
     {% endif %}
 {% endblock %}

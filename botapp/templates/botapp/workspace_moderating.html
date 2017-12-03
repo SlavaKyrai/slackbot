@@ -6,11 +6,19 @@
     {% if workspaces %}
         <div align="center">
             <h3>Модерирумые сообщества:</h3>
-            <ul class="commands-list">
-                {% for  workspace in workspaces %}
-                    <li><a href="{% url 'workspace_detail'  workspace.id %}">{{ workspace.team_name }}</a></li>
-                {% endfor %}
-            </ul>
+            <div class="card-container">
+                <div class="card">
+                    <ul class="list-group list-group-flush">
+                        {% for  workspace in workspaces %}
+                            <li class="list-group-item" style="text-align: center">
+                                <a href="{% url 'workspace_detail'  workspace.id %}">
+                                    {{ workspace.team_name }}
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
         </div>
     {% else %}
         <div class="empty-workspace" align="center">
