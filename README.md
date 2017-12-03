@@ -30,5 +30,6 @@ https://lightslackbot.herokuapp.com/
 * зарегестрируйте его - https://api.slack.com/apps:
 * настройте на сайте webhook`и для аутентификации, event'ов и slash commands
 * измените ключи в settings.py на ваши
+* pip install -r requirements.txt
 * run python manage.py migrate
 * run python manage.py runserver
